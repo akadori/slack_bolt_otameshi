@@ -1,5 +1,5 @@
-import {App, AppOptions, Block} from '@slack/bolt'
-import { exampleBlock } from './block'
+import { App, AppOptions, Block } from '@slack/bolt'
+// import { exampleBlock } from './block'
 
 // Initializes your app with your bot token and signing secret
 const config: AppOptions = {
@@ -8,10 +8,48 @@ const config: AppOptions = {
 }
 
 const app = new App(config)
-app.message('hello', async ({ message, say }) => {
-  // say() sends a message to the channel where the event was triggered
-  await say({blocks: exampleBlock({name: "HOGE"}) as any as Block[]});
+app.message(':wave:', async (payload) => {
+  if (
+    payload.message.subtype !== "message_changed" &&
+    payload.message.subtype !== "message_deleted" &&
+    payload.message.subtype !== "message_replied") {
+    await payload.say(`Hellssssso, <@${payload.message.user}>`);
+  }
 });
-app.start(process.env.PORT ? Number(process.env.PORT): 3000).then(server => {
-  console.log(`⚡️ Bolt app is running! PORT: ${server?.address()}`)
+
+app.event('app_mention', async ({payload, client, body, say}) => {
+  console.log("test event invoked")
+  console.log('body :>> ', body);
+  console.log('say :>> ', say);
+  const {channel} = payload
+  try {
+    // Call chat.postMessage with the built-in client
+    const result = await client.chat.postMessage({
+      channel: channel,
+      text: `Welcome to the team! 🎉 You can introduce yourself in this channel.`
+    });
+    console.log(result);
+  }
+  catch (error) {
+    console.error(error);
+  }
 })
+
+app.message('care me', async({client, payload}) => {
+  console.log("care me");
+  try {
+    if(app.client.token){
+      await client.stars.add(
+        {
+          token: process.env.SLACK_USER_TOKEN, 
+          channel: payload.channel, 
+          timestamp: payload.ts
+        }
+      )
+    }
+  }catch(e){
+    console.log('e :>> ', e);
+  }
+})
+
+app.start(3000)
