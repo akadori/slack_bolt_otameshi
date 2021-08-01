@@ -1,9 +1,12 @@
-import { Blocks, Section } from 'jsx-slack'
+import JSXSlack, { Button, Blocks, Actions } from 'jsx-slack'
 
-export const exampleBlock = ({ name }: {name: string}) => (
+export const exampleButton = ({ name }: {name: string}) => JSXSlack(
   <Blocks>
-    <Section>
-      Hello, <b>{name}</b>!
-    </Section>
-  </Blocks>
+  <Actions>
+    <Button actionId="button_clicked" value="value" style="primary">
+      Action button
+    </Button>
+  </Actions>
+</Blocks>
+
 )
